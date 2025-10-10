@@ -59,9 +59,20 @@ const Register = () => {
         toast.success('Account created successfully!');
         navigate('/dashboard');
       } else {
+        // Show main error
         toast.error(result.error);
+        
+        // If there are multiple validation errors, show them
+        if (result.details && result.details.length > 1) {
+          result.details.slice(1).forEach(detail => {
+            setTimeout(() => {
+              toast.error(detail.msg || detail.message);
+            }, 100);
+          });
+        }
       }
     } catch (error) {
+      console.error('Registration error:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);

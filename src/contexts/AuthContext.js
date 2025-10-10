@@ -76,9 +76,21 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
+      // Extract detailed validation errors if available
+      const errorData = error.response?.data;
+      let errorMessage = 'Registration failed';
+      
+      if (errorData?.details && Array.isArray(errorData.details)) {
+        // Show first validation error detail
+        errorMessage = errorData.details[0].msg || errorData.details[0].message || errorData.error;
+      } else if (errorData?.error) {
+        errorMessage = errorData.error;
+      }
+      
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Registration failed' 
+        error: errorMessage,
+        details: errorData?.details
       };
     }
   };
