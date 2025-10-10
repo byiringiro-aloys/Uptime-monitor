@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../config/axios';
+import { useSocket } from '../contexts/SocketContext';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -8,7 +9,8 @@ import {
   TrendingUp, 
   Activity,
   Calendar,
-  AlertTriangle
+  AlertTriangle,
+  Wifi
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
@@ -18,6 +20,7 @@ import StatusBadge from '../components/UI/StatusBadge';
 const MonitorDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { socket, connected } = useSocket();
   const [monitor, setMonitor] = useState(null);
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState([]);
@@ -41,6 +44,45 @@ const MonitorDetails = () => {
       fetchMonitorStats();
     }
   }, [monitor, selectedPeriod]);
+
+  // Listen for real-time updates for this specific monitor
+  useEffect(() => {
+    if (!socket || !monitor) return;
+
+    const handleMonitorUpdate = (data) => {
+      // Only update if it's for this monitor
+      if (data.monitorId === id) {
+        console.log('📡 Real-time update for monitor:', data);
+        
+        // Update monitor status
+        setMonitor(prev => ({
+          ...prev,
+          status: data.status,
+          uptime: data.uptime,
+          lastChecked: data.timestamp
+        }));
+
+        // Show notification for status changes
+        if (data.status === 'down') {
+          toast.error(`${monitor.name} is down!`, {
+            icon: '🔴',
+            duration: 4000,
+          });
+        } else if (data.status === 'up') {
+          toast.success(`${monitor.name} is back online!`, {
+            icon: '🟢',
+            duration: 3000,
+          });
+        }
+      }
+    };
+
+    socket.on('monitorUpdate', handleMonitorUpdate);
+
+    return () => {
+      socket.off('monitorUpdate', handleMonitorUpdate);
+    };
+  }, [socket, monitor, id]);
 
   const fetchMonitorDetails = async () => {
     try {
@@ -137,6 +179,20 @@ const MonitorDetails = () => {
                 </a>
                 <StatusBadge status={monitor.status} />
               </div>
+            </div>
+            {/* Real-time connection status */}
+            <div className="flex items-center space-x-2 mt-4 sm:mt-0">
+              {connected ? (
+                <>
+                  <Wifi className="h-5 w-5 text-green-500 animate-pulse" />
+                  <span className="text-sm text-green-600">Live Updates</span>
+                </>
+              ) : (
+                <>
+                  <Wifi className="h-5 w-5 text-gray-400" />
+                  <span className="text-sm text-gray-400">Offline</span>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../config/axios';
-import { Plus, Monitor, TrendingUp, AlertCircle } from 'lucide-react';
+import { Plus, Monitor, TrendingUp, AlertCircle, Wifi } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSocket } from '../contexts/SocketContext';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import StatusBadge from '../components/UI/StatusBadge';
 import AddMonitorModal from '../components/Monitors/AddMonitorModal';
@@ -11,6 +12,7 @@ const Dashboard = () => {
   const [monitors, setMonitors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const { socket, connected } = useSocket();
   const [stats, setStats] = useState({
     total: 0,
     online: 0,
@@ -21,6 +23,56 @@ const Dashboard = () => {
   useEffect(() => {
     fetchMonitors();
   }, []);
+
+  // Listen for real-time monitor updates
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMonitorUpdate = (data) => {
+      console.log('📡 Real-time update received:', data);
+      
+      // Update the specific monitor in the list
+      setMonitors(prevMonitors => {
+        const updatedMonitors = prevMonitors.map(monitor => {
+          if (monitor._id === data.monitorId) {
+            return {
+              ...monitor,
+              status: data.status,
+              uptime: data.uptime,
+              lastChecked: data.timestamp
+            };
+          }
+          return monitor;
+        });
+        
+        // Recalculate stats with updated monitors
+        calculateStats(updatedMonitors);
+        
+        return updatedMonitors;
+      });
+
+      // Show toast notification for status changes
+      const monitorName = monitors.find(m => m._id === data.monitorId)?.name || 'Monitor';
+      if (data.status === 'down') {
+        toast.error(`${monitorName} is down!`, {
+          icon: '🔴',
+          duration: 4000,
+        });
+      } else if (data.status === 'up') {
+        toast.success(`${monitorName} is back online!`, {
+          icon: '🟢',
+          duration: 3000,
+        });
+      }
+    };
+
+    socket.on('monitorUpdate', handleMonitorUpdate);
+
+    // Cleanup listener on unmount
+    return () => {
+      socket.off('monitorUpdate', handleMonitorUpdate);
+    };
+  }, [socket, monitors]);
 
   const fetchMonitors = async () => {
     try {
@@ -83,12 +135,30 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-responsive-2xl font-bold text-gray-900 mb-2">
-            Dashboard
-          </h1>
-          <p className="text-responsive-base text-gray-600">
-            Monitor your websites and track their uptime performance
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-responsive-2xl font-bold text-gray-900 mb-2">
+                Dashboard
+              </h1>
+              <p className="text-responsive-base text-gray-600">
+                Monitor your websites and track their uptime performance
+              </p>
+            </div>
+            {/* Real-time connection status */}
+            <div className="flex items-center space-x-2">
+              {connected ? (
+                <>
+                  <Wifi className="h-5 w-5 text-green-500 animate-pulse" />
+                  <span className="text-sm text-green-600 hidden sm:inline">Live</span>
+                </>
+              ) : (
+                <>
+                  <Wifi className="h-5 w-5 text-gray-400" />
+                  <span className="text-sm text-gray-400 hidden sm:inline">Offline</span>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}

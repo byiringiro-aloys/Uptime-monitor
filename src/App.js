@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SocketProvider } from './contexts/SocketContext';
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import Home from './pages/Home';
@@ -25,9 +26,10 @@ const AuthenticatedRedirect = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Layout>
-          <Routes>
+      <SocketProvider>
+        <Router>
+          <Layout>
+            <Routes>
             {/* Public routes */}
             <Route 
               path="/" 
@@ -77,6 +79,7 @@ function App() {
           </Routes>
         </Layout>
       </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }
