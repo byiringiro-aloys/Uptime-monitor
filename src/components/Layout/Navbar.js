@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import ConfirmModal from '../UI/ConfirmModal';
 import { 
   Monitor, 
   User, 
@@ -14,11 +15,16 @@ const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogoutConfirm = () => {
     logout();
     navigate('/');
-    setIsMobileMenuOpen(false);
   };
 
   const toggleMobileMenu = () => {
@@ -57,7 +63,7 @@ const Navbar = () => {
                   </div>
                   
                   <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="flex items-center space-x-1 text-gray-700 hover:text-danger-600 transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
@@ -118,7 +124,7 @@ const Navbar = () => {
                 </div>
                 
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="flex items-center space-x-2 text-gray-700 hover:text-danger-600 transition-colors w-full text-left"
                 >
                   <LogOut className="h-4 w-4" />
@@ -146,6 +152,18 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
+        title="Confirm Logout"
+        message="Are you sure you want to logout? You will need to login again to access your dashboard and monitors."
+        confirmText="Logout"
+        cancelText="Stay Logged In"
+        variant="warning"
+      />
     </nav>
   );
 };
