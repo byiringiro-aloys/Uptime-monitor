@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/axios';
 import { Plus, Monitor, TrendingUp, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   const fetchMonitors = async () => {
     try {
-      const response = await axios.get('/api/monitors');
+      const response = await api.get('/api/monitors');
       setMonitors(response.data.monitors);
       calculateStats(response.data.monitors);
     } catch (error) {
@@ -48,7 +48,7 @@ const Dashboard = () => {
 
   const handleAddMonitor = async (monitorData) => {
     try {
-      const response = await axios.post('/api/monitors', monitorData);
+      const response = await api.post('/api/monitors', monitorData);
       setMonitors([response.data.monitor, ...monitors]);
       calculateStats([response.data.monitor, ...monitors]);
       setShowAddModal(false);
@@ -60,7 +60,7 @@ const Dashboard = () => {
 
   const handleDeleteMonitor = async (monitorId) => {
     try {
-      await axios.delete(`/api/monitors/${monitorId}`);
+      await api.delete(`/api/monitors/${monitorId}`);
       const updatedMonitors = monitors.filter(m => m._id !== monitorId);
       setMonitors(updatedMonitors);
       calculateStats(updatedMonitors);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -44,7 +44,7 @@ const MonitorDetails = () => {
 
   const fetchMonitorDetails = async () => {
     try {
-      const response = await axios.get(`/api/monitors/${id}`);
+      const response = await api.get(`/api/monitors/${id}`);
       setMonitor(response.data.monitor);
       setRecentLogs(response.data.recentLogs);
     } catch (error) {
@@ -61,7 +61,7 @@ const MonitorDetails = () => {
 
   const fetchMonitorStats = async () => {
     try {
-      const response = await axios.get(`/api/monitors/${id}/stats?period=${selectedPeriod}`);
+      const response = await api.get(`/api/monitors/${id}/stats?period=${selectedPeriod}`);
       setStats(response.data.stats);
       setChartData(response.data.chartData);
     } catch (error) {
