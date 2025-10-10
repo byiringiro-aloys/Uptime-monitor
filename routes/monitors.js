@@ -3,6 +3,9 @@ import { body, validationResult } from 'express-validator';
 import Monitor from '../models/Monitor.js';
 import PingLog from '../models/PingLog.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { monitorCreationLimiter } from '../middleware/rateLimiter.js';
+import { checkMonitorLimit } from '../middleware/monitorLimits.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -16,7 +19,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     res.json({ monitors });
   } catch (error) {
-    console.error('Get monitors error:', error);
+    logger.error('Get monitors error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -43,14 +46,15 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
     res.json({ monitor, recentLogs });
   } catch (error) {
-    console.error('Get monitor error:', error);
+    logger.error('Get monitor error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Create new monitor
-router.post('/', [
+router.post('/', monitorCreationLimiter, [
   authenticateToken,
+  checkMonitorLimit,
   body('name')
     .trim()
     .isLength({ min: 1, max: 100 })
@@ -104,7 +108,7 @@ router.post('/', [
       monitor
     });
   } catch (error) {
-    console.error('Create monitor error:', error);
+    logger.error('Create monitor error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -150,7 +154,7 @@ router.put('/:id', [
       monitor
     });
   } catch (error) {
-    console.error('Update monitor error:', error);
+    logger.error('Update monitor error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -177,7 +181,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     res.json({ message: 'Monitor deleted successfully' });
   } catch (error) {
-    console.error('Delete monitor error:', error);
+    logger.error('Delete monitor error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -265,7 +269,7 @@ router.get('/:id/stats', authenticateToken, async (req, res) => {
       chartData
     });
   } catch (error) {
-    console.error('Get monitor stats error:', error);
+    logger.error('Get monitor stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

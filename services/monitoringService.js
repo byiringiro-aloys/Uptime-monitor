@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import cron from 'node-cron';
 import Monitor from '../models/Monitor.js';
 import PingLog from '../models/PingLog.js';
+import logger from '../utils/logger.js';
 
 class MonitoringService {
   constructor() {
@@ -12,7 +13,7 @@ class MonitoringService {
   async start() {
     if (this.isRunning) return;
     
-    console.log('🚀 Starting monitoring service...');
+    logger.info('🚀 Starting monitoring service...');
     this.isRunning = true;
 
     // Schedule monitoring checks every minute
@@ -25,7 +26,7 @@ class MonitoringService {
   }
 
   async stop() {
-    console.log('⏹️ Stopping monitoring service...');
+    logger.info('⏹️ Stopping monitoring service...');
     this.isRunning = false;
     this.activeMonitors.clear();
   }
@@ -45,7 +46,7 @@ class MonitoringService {
         }
       }
     } catch (error) {
-      console.error('Error checking monitors:', error);
+      logger.error('Error checking monitors:', error);
     }
   }
 
@@ -57,7 +58,9 @@ class MonitoringService {
     };
 
     try {
-      console.log(`🔍 Checking ${monitor.name} (${monitor.url})`);
+      if (process.env.NODE_ENV === 'development') {
+        logger.debug(`🔍 Checking ${monitor.name} (${monitor.url})`);
+      }
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), monitor.timeout);
@@ -96,7 +99,14 @@ class MonitoringService {
 
       await Monitor.findByIdAndUpdate(monitor._id, updateData);
 
-      console.log(`${isSuccess ? '✅' : '❌'} ${monitor.name}: ${response.status} (${responseTime}ms)`);
+      if (process.env.NODE_ENV === 'development') {
+        logger.debug(`${isSuccess ? '✅' : '❌'} ${monitor.name}: ${response.status} (${responseTime}ms)`);
+      }
+      
+      // Log only failures in production
+      if (!isSuccess && process.env.NODE_ENV === 'production') {
+        logger.warn(`Monitor ${monitor.name} is down: ${response.status} (${responseTime}ms)`);
+      }
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
@@ -123,14 +133,14 @@ class MonitoringService {
 
       await Monitor.findByIdAndUpdate(monitor._id, updateData);
 
-      console.log(`❌ ${monitor.name}: ${error.message}`);
+      logger.warn(`❌ Monitor ${monitor.name} failed: ${error.message}`);
     }
 
     // Save ping log
     try {
       await new PingLog(pingLog).save();
     } catch (error) {
-      console.error('Error saving ping log:', error);
+      logger.error('Error saving ping log:', error);
     }
   }
 
@@ -190,7 +200,7 @@ class MonitoringService {
         period: `${hours}h`
       };
     } catch (error) {
-      console.error('Error getting monitor summary:', error);
+      logger.error('Error getting monitor summary:', error);
       throw error;
     }
   }

@@ -1,27 +1,64 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import compression from 'compression';
+import mongoSanitize from 'express-mongo-sanitize';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import monitorRoutes from './routes/monitors.js';
 import monitoringService from './services/monitoringService.js';
+import logger from './utils/logger.js';
+import validateEnv from './utils/validateEnv.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
 
 // Load environment variables
 dotenv.config();
 
+// Validate environment variables
+validateEnv();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://blinktech-uptime-monitor.onrender.com'] 
-    : ['http://localhost:3000'],
-  credentials: true
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production',
+  crossOriginEmbedderPolicy: process.env.NODE_ENV === 'production'
 }));
 
+// CORS configuration
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? (process.env.ALLOWED_ORIGINS || 'https://blinktech-uptime-monitor.onrender.com').split(',')
+  : ['http://localhost:3000', 'http://localhost:3001'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Sanitize data to prevent NoSQL injection
+app.use(mongoSanitize());
+
+// Compression middleware
+app.use(compression());
+
+// Rate limiting for all API routes
+app.use('/api/', apiLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -43,7 +80,13 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('Unhandled error:', error);
+  logger.error('Unhandled error:', error);
+  
+  // Handle CORS errors
+  if (error.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+  
   res.status(500).json({ 
     error: 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { details: error.message })
@@ -55,32 +98,55 @@ const startServer = async () => {
   try {
     // Connect to database
     await connectDB();
+    logger.info('Database connected successfully');
     
     // Start monitoring service
     await monitoringService.start();
+    logger.info('Monitoring service started');
     
     // Start HTTP server
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+    const server = app.listen(PORT, () => {
+      logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+      logger.info(`📊 Health check: http://localhost:${PORT}/health`);
     });
+    
+    // Handle server errors
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        logger.error(`Port ${PORT} is already in use`);
+      } else {
+        logger.error('Server error:', error);
+      }
+      process.exit(1);
+    });
+    
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    logger.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  logger.info('🛑 SIGTERM received, shutting down gracefully...');
   await monitoringService.stop();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('🛑 SIGINT received, shutting down gracefully...');
+  logger.info('🛑 SIGINT received, shutting down gracefully...');
   await monitoringService.stop();
   process.exit(0);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
 
 startServer();

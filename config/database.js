@@ -1,31 +1,48 @@
 import mongoose from 'mongoose';
+import logger from '../utils/logger.js';
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+      maxPoolSize: 10, // Maximum number of connections in the pool
+      minPoolSize: 2, // Minimum number of connections in the pool
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+      heartbeatFrequencyMS: 10000, // How often to check server availability
+    };
 
-    console.log(`📦 MongoDB Connected: ${conn.connection.host}`);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+
+    logger.info(`📦 MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`📦 Database: ${conn.connection.name}`);
   } catch (error) {
-    console.error('❌ Database connection error:', error);
+    logger.error('❌ Database connection error:', error);
     process.exit(1);
   }
 };
 
 // Handle connection events
+mongoose.connection.on('connected', () => {
+  logger.info('📦 MongoDB connection established');
+});
+
 mongoose.connection.on('disconnected', () => {
-  console.log('📦 MongoDB disconnected');
+  logger.warn('📦 MongoDB disconnected');
 });
 
 mongoose.connection.on('error', (error) => {
-  console.error('📦 MongoDB error:', error);
+  logger.error('📦 MongoDB error:', error);
+});
+
+mongoose.connection.on('reconnected', () => {
+  logger.info('📦 MongoDB reconnected');
 });
 
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
-  console.log('📦 MongoDB connection closed through app termination');
+  logger.info('📦 MongoDB connection closed through app termination');
   process.exit(0);
 });
 
