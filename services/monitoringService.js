@@ -8,6 +8,12 @@ class MonitoringService {
   constructor() {
     this.activeMonitors = new Map();
     this.isRunning = false;
+    this.io = null;
+  }
+
+  setSocketIO(io) {
+    this.io = io;
+    logger.info('Socket.io configured for monitoring service');
   }
 
   async start() {
@@ -97,7 +103,7 @@ class MonitoringService {
       // Calculate uptime percentage
       updateData.uptime = (updateData.successfulChecks / updateData.totalChecks) * 100;
 
-      await Monitor.findByIdAndUpdate(monitor._id, updateData);
+      const updatedMonitor = await Monitor.findByIdAndUpdate(monitor._id, updateData, { new: true });
 
       if (process.env.NODE_ENV === 'development') {
         logger.debug(`${isSuccess ? '✅' : '❌'} ${monitor.name}: ${response.status} (${responseTime}ms)`);
@@ -106,6 +112,18 @@ class MonitoringService {
       // Log only failures in production
       if (!isSuccess && process.env.NODE_ENV === 'production') {
         logger.warn(`Monitor ${monitor.name} is down: ${response.status} (${responseTime}ms)`);
+      }
+
+      // Emit real-time update to connected clients
+      if (this.io) {
+        this.io.emit('monitorUpdate', {
+          monitorId: monitor._id.toString(),
+          status: isSuccess ? 'up' : 'down',
+          responseTime,
+          statusCode: response.status,
+          uptime: updateData.uptime,
+          timestamp: new Date().toISOString()
+        });
       }
 
     } catch (error) {
@@ -131,9 +149,22 @@ class MonitoringService {
         ? (updateData.successfulChecks / updateData.totalChecks) * 100 
         : 0;
 
-      await Monitor.findByIdAndUpdate(monitor._id, updateData);
+      const updatedMonitor = await Monitor.findByIdAndUpdate(monitor._id, updateData, { new: true });
 
       logger.warn(`❌ Monitor ${monitor.name} failed: ${error.message}`);
+
+      // Emit real-time update to connected clients
+      if (this.io) {
+        this.io.emit('monitorUpdate', {
+          monitorId: monitor._id.toString(),
+          status: 'down',
+          responseTime: null,
+          statusCode: null,
+          uptime: updateData.uptime,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
     }
 
     // Save ping log

@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import monitorRoutes from './routes/monitors.js';
@@ -93,7 +95,9 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server
+// Global server instance
+let httpServer;
+
 const startServer = async () => {
   try {
     // Connect to database
@@ -104,14 +108,42 @@ const startServer = async () => {
     await monitoringService.start();
     logger.info('Monitoring service started');
     
+    // Create HTTP server
+    httpServer = createServer(app);
+    
+    // Initialize Socket.io with CORS
+    const io = new Server(httpServer, {
+      cors: {
+        origin: allowedOrigins,
+        methods: ['GET', 'POST'],
+        credentials: true
+      }
+    });
+    
+    // Make io accessible to routes
+    app.set('io', io);
+    
+    // Socket.io connection handling
+    io.on('connection', (socket) => {
+      logger.info(`✅ Client connected: ${socket.id}`);
+      
+      socket.on('disconnect', () => {
+        logger.info(`❌ Client disconnected: ${socket.id}`);
+      });
+    });
+    
+    // Pass io to monitoring service for real-time updates
+    monitoringService.setSocketIO(io);
+    
     // Start HTTP server
-    const server = app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
       logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+      logger.info(`🔌 Socket.io enabled for real-time updates`);
     });
     
     // Handle server errors
-    server.on('error', (error) => {
+    httpServer.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
         logger.error(`Port ${PORT} is already in use`);
       } else {
@@ -126,17 +158,30 @@ const startServer = async () => {
   }
 };
 
-// Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('🛑 SIGTERM received, shutting down gracefully...');
   await monitoringService.stop();
-  process.exit(0);
+  if (httpServer) {
+    httpServer.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
 });
 
 process.on('SIGINT', async () => {
   logger.info('🛑 SIGINT received, shutting down gracefully...');
   await monitoringService.stop();
-  process.exit(0);
+  if (httpServer) {
+    httpServer.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
 });
 
 process.on('uncaughtException', (error) => {
