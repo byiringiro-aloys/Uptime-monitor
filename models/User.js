@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -95,7 +96,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 // Generate verification token
 userSchema.methods.createVerificationToken = function () {
-  const crypto = require('crypto');
   const verificationToken = crypto.randomBytes(32).toString('hex');
 
   this.verificationToken = crypto
@@ -108,7 +108,6 @@ userSchema.methods.createVerificationToken = function () {
 
 // Generate password reset token
 userSchema.methods.createPasswordResetToken = function () {
-  const crypto = require('crypto');
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.resetPasswordToken = crypto
@@ -190,7 +189,7 @@ userSchema.methods.addLoginAttempt = function (ip, userAgent, success, location 
 
 // Add trusted device
 userSchema.methods.addTrustedDevice = function (ip, userAgent) {
-  const fingerprint = require('crypto')
+  const fingerprint = crypto
     .createHash('sha256')
     .update(ip + userAgent)
     .digest('hex');

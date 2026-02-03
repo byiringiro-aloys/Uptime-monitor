@@ -24,6 +24,9 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy - required for rate limiting behind reverse proxies (Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: process.env.NODE_ENV === 'production',

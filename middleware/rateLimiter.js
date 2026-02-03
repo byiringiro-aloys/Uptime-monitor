@@ -7,6 +7,7 @@ export const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Trust proxy is handled at app level, so rate limiter will use the correct IP
   handler: (req, res) => {
     res.status(429).json({
       error: 'Too many requests',
