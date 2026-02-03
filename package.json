@@ -1,6 +1,6 @@
 {
   "name": "uptime-monitor-backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -13,21 +13,24 @@
     "health": "curl http://localhost:5000/health"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "node-fetch": "^3.3.2",
-    "express-validator": "^7.0.1",
-    "node-cron": "^3.0.2",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
+    "express": "^4.18.2",
     "express-mongo-sanitize": "^2.2.0",
-    "winston": "^3.11.0",
-    "compression": "^1.7.4",
-    "socket.io": "^4.6.1"
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.2",
+    "qrcode": "^1.5.4",
+    "resend": "^6.9.1",
+    "socket.io": "^4.6.1",
+    "speakeasy": "^2.0.0",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
