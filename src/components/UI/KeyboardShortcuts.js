@@ -6,9 +6,13 @@ const KeyboardShortcuts = () => {
 
   const shortcuts = [
     {
+      keys: ['M'],
+      description: 'Toggle dark/light theme (when not typing)'
+    },
+    {
       keys: ['Ctrl', 'Shift', 'D'],
       macKeys: ['Cmd', 'Shift', 'D'],
-      description: 'Toggle dark/light theme'
+      description: 'Toggle dark/light theme (alternative)'
     },
     {
       keys: ['Esc'],

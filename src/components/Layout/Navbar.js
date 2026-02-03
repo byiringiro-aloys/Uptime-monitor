@@ -67,8 +67,8 @@ const Navbar = () => {
                   <button
                     onClick={toggleTheme}
                     className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
-                    aria-label="Toggle theme (Ctrl+Shift+D)"
-                    title="Toggle theme (Ctrl+Shift+D)"
+                    aria-label="Toggle theme (M key or Ctrl+Shift+D)"
+                    title="Toggle theme (M key or Ctrl+Shift+D)"
                   >
                     {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                   </button>
@@ -93,8 +93,8 @@ const Navbar = () => {
                 <button
                   onClick={toggleTheme}
                   className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
-                  aria-label="Toggle theme (Ctrl+Shift+D)"
-                  title="Toggle theme (Ctrl+Shift+D)"
+                  aria-label="Toggle theme (M key or Ctrl+Shift+D)"
+                  title="Toggle theme (M key or Ctrl+Shift+D)"
                 >
                   {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>
@@ -120,8 +120,8 @@ const Navbar = () => {
             <button
               onClick={toggleTheme}
               className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
-              aria-label="Toggle theme (Ctrl+Shift+D)"
-              title="Toggle theme (Ctrl+Shift+D)"
+              aria-label="Toggle theme (M key or Ctrl+Shift+D)"
+              title="Toggle theme (M key or Ctrl+Shift+D)"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
