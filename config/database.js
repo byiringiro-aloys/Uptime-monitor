@@ -15,34 +15,42 @@ const connectDB = async () => {
 
     const conn = await mongoose.connect(process.env.MONGODB_URI, options);
 
-    logger.info(`📦 MongoDB Connected: ${conn.connection.host}`);
-    logger.info(`📦 Database: ${conn.connection.name}`);
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info(`📦 MongoDB Connected: ${conn.connection.host}`);
+      logger.info(`📦 Database: ${conn.connection.name}`);
+    }
   } catch (error) {
-    logger.error('❌ Database connection error:', error);
+    logger.error('Database connection error:', error);
     process.exit(1);
   }
 };
 
 // Handle connection events
 mongoose.connection.on('connected', () => {
-  logger.info('📦 MongoDB connection established');
+  if (process.env.NODE_ENV !== 'production') {
+    logger.info('📦 MongoDB connection established');
+  }
 });
 
 mongoose.connection.on('disconnected', () => {
-  logger.warn('📦 MongoDB disconnected');
+  logger.warn('MongoDB disconnected');
 });
 
 mongoose.connection.on('error', (error) => {
-  logger.error('📦 MongoDB error:', error);
+  logger.error('MongoDB error:', error);
 });
 
 mongoose.connection.on('reconnected', () => {
-  logger.info('📦 MongoDB reconnected');
+  if (process.env.NODE_ENV !== 'production') {
+    logger.info('📦 MongoDB reconnected');
+  }
 });
 
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
-  logger.info('📦 MongoDB connection closed through app termination');
+  if (process.env.NODE_ENV !== 'production') {
+    logger.info('📦 MongoDB connection closed through app termination');
+  }
   process.exit(0);
 });
 

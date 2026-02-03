@@ -8,11 +8,15 @@ import monitoringService from './monitoringService.js';
 
 class CronService {
     start() {
-        logger.info('⏰ Cron service started');
+        if (process.env.NODE_ENV !== 'production') {
+            logger.info('⏰ Cron service started');
+        }
 
         // Weekly Report: Every Sunday at 00:00
         cron.schedule('0 0 * * 0', async () => {
-            logger.info('📊 Starting weekly report generation...');
+            if (process.env.NODE_ENV !== 'production') {
+                logger.info('📊 Starting weekly report generation...');
+            }
             await this.generateWeeklyReports();
         });
     }
@@ -47,7 +51,9 @@ class CronService {
                     incidents: totalIncidents
                 });
 
-                logger.info(`📧 Weekly report sent to ${user.email}`);
+                if (process.env.NODE_ENV !== 'production') {
+                    logger.info(`📧 Weekly report sent to ${user.email}`);
+                }
             }
         } catch (error) {
             logger.error('Error generating weekly reports:', error);

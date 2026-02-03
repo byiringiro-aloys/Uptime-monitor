@@ -106,11 +106,15 @@ const startServer = async () => {
   try {
     // Connect to database
     await connectDB();
-    logger.info('Database connected successfully');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('Database connected successfully');
+    }
 
     // Start monitoring service
     await monitoringService.start();
-    logger.info('Monitoring service started');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('Monitoring service started');
+    }
 
     // Start cron service
     cronService.start();
@@ -130,12 +134,16 @@ const startServer = async () => {
     // Make io accessible to routes
     app.set('io', io);
 
-    // Socket.io connection handling
+    // Socket.io connection handling (only log in development)
     io.on('connection', (socket) => {
-      logger.info(`✅ Client connected: ${socket.id}`);
+      if (process.env.NODE_ENV !== 'production') {
+        logger.info(`Client connected: ${socket.id}`);
+      }
 
       socket.on('disconnect', () => {
-        logger.info(`❌ Client disconnected: ${socket.id}`);
+        if (process.env.NODE_ENV !== 'production') {
+          logger.info(`Client disconnected: ${socket.id}`);
+        }
       });
     });
 
@@ -144,9 +152,13 @@ const startServer = async () => {
 
     // Start HTTP server
     httpServer.listen(PORT, () => {
-      logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-      logger.info(`📊 Health check: http://localhost:${PORT}/health`);
-      logger.info(`🔌 Socket.io enabled for real-time updates`);
+      if (process.env.NODE_ENV === 'production') {
+        logger.info(`Server running on port ${PORT}`);
+      } else {
+        logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+        logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+        logger.info(`🔌 Socket.io enabled for real-time updates`);
+      }
     });
 
     // Handle server errors

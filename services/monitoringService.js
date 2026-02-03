@@ -14,13 +14,17 @@ class MonitoringService {
 
   setSocketIO(io) {
     this.io = io;
-    logger.info('Socket.io configured for monitoring service');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('Socket.io configured for monitoring service');
+    }
   }
 
   async start() {
     if (this.isRunning) return;
 
-    logger.info('🚀 Starting monitoring service...');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('🚀 Starting monitoring service...');
+    }
     this.isRunning = true;
 
     // Schedule monitoring checks every minute
@@ -33,7 +37,9 @@ class MonitoringService {
   }
 
   async stop() {
-    logger.info('⏹️ Stopping monitoring service...');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('⏹️ Stopping monitoring service...');
+    }
     this.isRunning = false;
     this.activeMonitors.clear();
   }

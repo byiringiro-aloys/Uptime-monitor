@@ -9,24 +9,17 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
 
 // Create logger instance
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.NODE_ENV === 'production' ? 'error' : 'info',
   format: combine(
     errors({ stack: true }),
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     logFormat
   ),
   transports: [
-    // Write all logs to console
-    new winston.transports.Console({
-      format: combine(
-        colorize(),
-        logFormat
-      )
-    }),
     // Write all logs to combined.log
     new winston.transports.File({ 
       filename: 'logs/combined.log',
-      maxsize: 5242880, // 5MB
+      maxsize: 105242880, // 5MB
       maxFiles: 5
     }),
     // Write error logs to error.log
@@ -39,7 +32,7 @@ const logger = winston.createLogger({
   ]
 });
 
-// If not in production, log to console with more details
+// Only log to console in development
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: combine(
