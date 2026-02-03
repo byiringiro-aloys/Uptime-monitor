@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import ConfirmModal from '../UI/ConfirmModal';
-import { 
-  Monitor, 
-  User, 
-  LogOut, 
-  Menu, 
+import {
+  User,
+  LogOut,
+  Menu,
   X,
-  Activity
+  Activity,
+  Sun,
+  Moon
 } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -36,11 +39,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link 
-            to="/" 
-            className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors"
+          <Link
+            to="/"
+            className="flex items-center space-x-2 text-gray-900 hover:text-gray-600 transition-colors dark:text-white dark:hover:text-gray-300"
           >
-            <Activity className="h-8 w-8" />
+            <div className="p-1.5 bg-black rounded-lg dark:bg-white text-white dark:text-black">
+              <Activity className="h-6 w-6" />
+            </div>
             <span className="text-responsive-lg font-bold">UptimeBot</span>
           </Link>
 
@@ -48,23 +53,32 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             {isAuthenticated ? (
               <>
-                <Link 
-                  to="/dashboard" 
-                  className="flex items-center space-x-1 text-gray-700 hover:text-primary-600 transition-colors"
+                <Link
+                  to="/dashboard"
+                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors dark:text-gray-300 dark:hover:text-white"
                 >
                   <Monitor className="h-4 w-4" />
                   <span>Dashboard</span>
                 </Link>
-                
+
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2 text-gray-700">
+                  {/* Theme Toggle */}
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
+                    aria-label="Toggle theme"
+                  >
+                    {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  </button>
+
+                  <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                     <User className="h-4 w-4" />
                     <span className="text-responsive-sm">{user?.username}</span>
                   </div>
-                  
+
                   <button
                     onClick={handleLogoutClick}
-                    className="flex items-center space-x-1 text-gray-700 hover:text-danger-600 transition-colors"
+                    className="flex items-center space-x-1 text-gray-700 hover:text-danger-600 transition-colors dark:text-gray-300 dark:hover:text-danger-400"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
@@ -73,14 +87,23 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link 
-                  to="/login" 
-                  className="text-gray-700 hover:text-primary-600 transition-colors"
+                {/* Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </button>
+
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-black transition-colors dark:text-gray-300 dark:hover:text-white"
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/register" 
+                <Link
+                  to="/register"
                   className="btn-primary"
                 >
                   Sign Up
@@ -90,10 +113,16 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-700 hover:text-primary-600 transition-colors"
+              className="text-gray-700 hover:text-black transition-colors dark:text-gray-300 dark:hover:text-white"
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -106,23 +135,23 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 bg-white">
+          <div className="md:hidden py-4 border-t border-gray-200 bg-white dark:bg-primary-900 dark:border-primary-800">
             {isAuthenticated ? (
               <div className="space-y-4">
-                <Link 
-                  to="/dashboard" 
+                <Link
+                  to="/dashboard"
                   className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Monitor className="h-4 w-4" />
                   <span>Dashboard</span>
                 </Link>
-                
+
                 <div className="flex items-center space-x-2 text-gray-700 py-2">
                   <User className="h-4 w-4" />
                   <span className="text-responsive-sm">{user?.username}</span>
                 </div>
-                
+
                 <button
                   onClick={handleLogoutClick}
                   className="flex items-center space-x-2 text-gray-700 hover:text-danger-600 transition-colors w-full text-left"
@@ -133,15 +162,15 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="block text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/register" 
+                <Link
+                  to="/register"
                   className="block btn-primary text-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

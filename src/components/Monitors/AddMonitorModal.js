@@ -50,12 +50,12 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
 
   const handleUrlChange = (e) => {
     let url = e.target.value;
-    
+
     // Auto-add https:// if no protocol is specified
     if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url;
     }
-    
+
     setFormData({
       ...formData,
       url,
@@ -66,15 +66,15 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-primary-900 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-responsive-lg font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-primary-800">
+          <h2 className="text-responsive-lg font-semibold text-gray-900 dark:text-gray-100">
             Add New Monitor
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -84,7 +84,7 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-responsive-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-responsive-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Monitor Name
             </label>
             <div className="relative">
@@ -106,7 +106,7 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
 
           {/* URL */}
           <div>
-            <label htmlFor="url" className="block text-responsive-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="url" className="block text-responsive-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Website URL
             </label>
             <div className="relative">
@@ -124,14 +124,14 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
                 onChange={handleUrlChange}
               />
             </div>
-            <p className="mt-1 text-responsive-xs text-gray-500">
+            <p className="mt-1 text-responsive-xs text-gray-500 dark:text-gray-400">
               The URL will be checked for availability
             </p>
           </div>
 
           {/* Check Interval */}
           <div>
-            <label htmlFor="interval" className="block text-responsive-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="interval" className="block text-responsive-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Check Interval
             </label>
             <div className="relative">
@@ -152,14 +152,14 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
                 ))}
               </select>
             </div>
-            <p className="mt-1 text-responsive-xs text-gray-500">
+            <p className="mt-1 text-responsive-xs text-gray-500 dark:text-gray-400">
               How often to check your website
             </p>
           </div>
 
           {/* Timeout */}
           <div>
-            <label htmlFor="timeout" className="block text-responsive-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="timeout" className="block text-responsive-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Request Timeout
             </label>
             <div className="relative">
@@ -180,7 +180,7 @@ const AddMonitorModal = ({ onClose, onAdd }) => {
                 ))}
               </select>
             </div>
-            <p className="mt-1 text-responsive-xs text-gray-500">
+            <p className="mt-1 text-responsive-xs text-gray-500 dark:text-gray-400">
               Maximum time to wait for a response
             </p>
           </div>

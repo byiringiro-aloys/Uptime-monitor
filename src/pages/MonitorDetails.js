@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../config/axios';
 import { useSocket } from '../contexts/SocketContext';
-import { 
-  ArrowLeft, 
-  ExternalLink, 
-  Clock, 
-  TrendingUp, 
+import {
+  ArrowLeft,
+  ExternalLink,
+  Clock,
+  TrendingUp,
   Activity,
   Calendar,
   AlertTriangle,
@@ -53,7 +53,7 @@ const MonitorDetails = () => {
       // Only update if it's for this monitor
       if (data.monitorId === id) {
         console.log('📡 Real-time update for monitor:', data);
-        
+
         // Update monitor status
         setMonitor(prev => ({
           ...prev,
@@ -119,7 +119,7 @@ const MonitorDetails = () => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    
+
     if (hours > 0) return `${hours}h ${minutes % 60}m`;
     if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
     return `${seconds}s`;
@@ -150,21 +150,21 @@ const MonitorDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-primary-950 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            to="/dashboard" 
-            className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4"
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-responsive-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-responsive-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {monitor.name}
               </h1>
               <div className="flex items-center space-x-4">
@@ -172,7 +172,7 @@ const MonitorDetails = () => {
                   href={monitor.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700 flex items-center"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center"
                 >
                   <span className="text-responsive-base">{monitor.url}</span>
                   <ExternalLink className="h-4 w-4 ml-2" />
@@ -206,8 +206,8 @@ const MonitorDetails = () => {
                   <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-responsive-sm text-gray-600">Uptime</p>
-                  <p className="text-responsive-xl font-bold text-gray-900">
+                  <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Uptime</p>
+                  <p className="text-responsive-xl font-bold text-gray-900 dark:text-gray-100">
                     {stats.uptime}%
                   </p>
                 </div>
@@ -220,8 +220,8 @@ const MonitorDetails = () => {
                   <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-success-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-responsive-sm text-gray-600">Successful</p>
-                  <p className="text-responsive-xl font-bold text-success-600">
+                  <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Successful</p>
+                  <p className="text-responsive-xl font-bold text-success-600 dark:text-success-400">
                     {stats.successfulPings}
                   </p>
                 </div>
@@ -234,8 +234,8 @@ const MonitorDetails = () => {
                   <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-responsive-sm text-gray-600">Avg Response</p>
-                  <p className="text-responsive-xl font-bold text-gray-900">
+                  <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Avg Response</p>
+                  <p className="text-responsive-xl font-bold text-gray-900 dark:text-gray-100">
                     {stats.avgResponseTime}ms
                   </p>
                 </div>
@@ -248,8 +248,8 @@ const MonitorDetails = () => {
                   <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-responsive-sm text-gray-600">Total Checks</p>
-                  <p className="text-responsive-xl font-bold text-gray-900">
+                  <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Total Checks</p>
+                  <p className="text-responsive-xl font-bold text-gray-900 dark:text-gray-100">
                     {stats.totalPings}
                   </p>
                 </div>
@@ -261,7 +261,7 @@ const MonitorDetails = () => {
         {/* Chart Section */}
         <div className="card p-6 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-            <h2 className="text-responsive-lg font-semibold text-gray-900 mb-4 sm:mb-0">
+            <h2 className="text-responsive-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
               Uptime Chart
             </h2>
             <div className="flex space-x-2">
@@ -269,11 +269,10 @@ const MonitorDetails = () => {
                 <button
                   key={period.value}
                   onClick={() => setSelectedPeriod(period.value)}
-                  className={`px-3 py-1 rounded-lg text-responsive-sm font-medium transition-colors ${
-                    selectedPeriod === period.value
+                  className={`px-3 py-1 rounded-lg text-responsive-sm font-medium transition-colors ${selectedPeriod === period.value
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-primary-800 dark:text-gray-300 dark:hover:bg-primary-700'
+                    }`}
                 >
                   {period.label}
                 </button>
@@ -286,19 +285,19 @@ const MonitorDetails = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
+                  <XAxis
+                    dataKey="timestamp"
                     tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                   />
                   <YAxis domain={[0, 100]} />
-                  <Tooltip 
+                  <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleString()}
                     formatter={(value) => [`${value.toFixed(1)}%`, 'Uptime']}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="uptime" 
-                    stroke="#3b82f6" 
+                  <Line
+                    type="monotone"
+                    dataKey="uptime"
+                    stroke="#3b82f6"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -317,20 +316,19 @@ const MonitorDetails = () => {
 
         {/* Recent Activity */}
         <div className="card p-6">
-          <h2 className="text-responsive-lg font-semibold text-gray-900 mb-6">
+          <h2 className="text-responsive-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">
             Recent Activity
           </h2>
-          
+
           {recentLogs.length > 0 ? (
             <div className="space-y-4">
               {recentLogs.slice(0, 10).map((log, index) => (
-                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-primary-800 last:border-b-0">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      log.status === 'success' ? 'bg-success-500' : 'bg-danger-500'
-                    }`} />
+                    <div className={`w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-success-500' : 'bg-danger-500'
+                      }`} />
                     <div>
-                      <p className="text-responsive-sm font-medium text-gray-900">
+                      <p className="text-responsive-sm font-medium text-gray-900 dark:text-gray-100">
                         {log.status === 'success' ? 'Check successful' : 'Check failed'}
                       </p>
                       <p className="text-responsive-xs text-gray-500">
@@ -338,23 +336,23 @@ const MonitorDetails = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="text-right">
                     {log.status === 'success' ? (
                       <div>
-                        <p className="text-responsive-sm font-medium text-gray-900">
+                        <p className="text-responsive-sm font-medium text-gray-900 dark:text-gray-100">
                           {log.responseTime}ms
                         </p>
-                        <p className="text-responsive-xs text-gray-500">
+                        <p className="text-responsive-xs text-gray-500 dark:text-gray-400">
                           HTTP {log.statusCode}
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <p className="text-responsive-sm font-medium text-danger-600">
+                        <p className="text-responsive-sm font-medium text-danger-600 dark:text-danger-400">
                           Failed
                         </p>
-                        <p className="text-responsive-xs text-gray-500">
+                        <p className="text-responsive-xs text-gray-500 dark:text-gray-400">
                           {log.errorMessage}
                         </p>
                       </div>

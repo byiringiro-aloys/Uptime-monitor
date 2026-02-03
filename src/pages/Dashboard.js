@@ -7,6 +7,7 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 import StatusBadge from '../components/UI/StatusBadge';
 import AddMonitorModal from '../components/Monitors/AddMonitorModal';
 import MonitorCard from '../components/Monitors/MonitorCard';
+import SecuritySettings from '../components/Settings/SecuritySettings';
 
 const Dashboard = () => {
   const [monitors, setMonitors] = useState([]);
@@ -30,7 +31,7 @@ const Dashboard = () => {
 
     const handleMonitorUpdate = (data) => {
       console.log('📡 Real-time update received:', data);
-      
+
       // Update the specific monitor in the list
       setMonitors(prevMonitors => {
         const updatedMonitors = prevMonitors.map(monitor => {
@@ -44,10 +45,10 @@ const Dashboard = () => {
           }
           return monitor;
         });
-        
+
         // Recalculate stats with updated monitors
         calculateStats(updatedMonitors);
-        
+
         return updatedMonitors;
       });
 
@@ -91,8 +92,8 @@ const Dashboard = () => {
     const total = monitorsList.length;
     const online = monitorsList.filter(m => m.status === 'up').length;
     const offline = monitorsList.filter(m => m.status === 'down').length;
-    const avgUptime = total > 0 
-      ? monitorsList.reduce((sum, m) => sum + m.uptime, 0) / total 
+    const avgUptime = total > 0
+      ? monitorsList.reduce((sum, m) => sum + m.uptime, 0) / total
       : 0;
 
     setStats({ total, online, offline, avgUptime });
@@ -131,16 +132,16 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-primary-950 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-responsive-2xl font-bold text-gray-900 mb-2">
+              <h1 className="text-responsive-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 Dashboard
               </h1>
-              <p className="text-responsive-base text-gray-600">
+              <p className="text-responsive-base text-gray-600 dark:text-gray-400">
                 Monitor your websites and track their uptime performance
               </p>
             </div>
@@ -169,8 +170,8 @@ const Dashboard = () => {
                 <Monitor className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
               </div>
               <div className="ml-4">
-                <p className="text-responsive-sm text-gray-600">Total Monitors</p>
-                <p className="text-responsive-xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Total Monitors</p>
+                <p className="text-responsive-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
               </div>
             </div>
           </div>
@@ -181,8 +182,8 @@ const Dashboard = () => {
                 <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success-600" />
               </div>
               <div className="ml-4">
-                <p className="text-responsive-sm text-gray-600">Online</p>
-                <p className="text-responsive-xl font-bold text-success-600">{stats.online}</p>
+                <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Online</p>
+                <p className="text-responsive-xl font-bold text-success-600 dark:text-success-400">{stats.online}</p>
               </div>
             </div>
           </div>
@@ -193,8 +194,8 @@ const Dashboard = () => {
                 <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-danger-600" />
               </div>
               <div className="ml-4">
-                <p className="text-responsive-sm text-gray-600">Offline</p>
-                <p className="text-responsive-xl font-bold text-danger-600">{stats.offline}</p>
+                <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Offline</p>
+                <p className="text-responsive-xl font-bold text-danger-600 dark:text-danger-400">{stats.offline}</p>
               </div>
             </div>
           </div>
@@ -205,8 +206,8 @@ const Dashboard = () => {
                 <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
               </div>
               <div className="ml-4">
-                <p className="text-responsive-sm text-gray-600">Avg Uptime</p>
-                <p className="text-responsive-xl font-bold text-gray-900">
+                <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Avg Uptime</p>
+                <p className="text-responsive-xl font-bold text-gray-900 dark:text-gray-100">
                   {stats.avgUptime.toFixed(1)}%
                 </p>
               </div>
@@ -214,9 +215,14 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Security Settings */}
+        <div className="mb-8">
+          <SecuritySettings />
+        </div>
+
         {/* Monitors Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <h2 className="text-responsive-lg font-semibold text-gray-900 mb-4 sm:mb-0">
+          <h2 className="text-responsive-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">
             Your Monitors
           </h2>
           <button
@@ -231,11 +237,11 @@ const Dashboard = () => {
         {/* Monitors Grid */}
         {monitors.length === 0 ? (
           <div className="card p-8 sm:p-12 text-center">
-            <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-responsive-lg font-medium text-gray-900 mb-2">
+            <Monitor className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-responsive-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               No monitors yet
             </h3>
-            <p className="text-responsive-sm text-gray-600 mb-6">
+            <p className="text-responsive-sm text-gray-600 dark:text-gray-400 mb-6">
               Get started by adding your first website to monitor
             </p>
             <button

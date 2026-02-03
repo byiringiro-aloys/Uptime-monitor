@@ -15,7 +15,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -31,37 +31,38 @@ const Register = () => {
       toast.error('Passwords do not match');
       return false;
     }
-    
+
     if (formData.password.length < 6) {
       toast.error('Password must be at least 6 characters long');
       return false;
     }
-    
+
     if (formData.username.length < 3) {
       toast.error('Username must be at least 3 characters long');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
       const result = await register(formData.username, formData.email, formData.password);
-      
+
       if (result.success) {
-        toast.success('Account created successfully!');
-        navigate('/dashboard');
+        toast.success(result.message || 'Please check your email to verify your account.');
+        // Don't navigate to dashboard, maybe show a success state on this page or redirect to login
+        navigate('/login');
       } else {
         // Show main error
         toast.error(result.error);
-        
+
         // If there are multiple validation errors, show them
         if (result.details && result.details.length > 1) {
           result.details.slice(1).forEach(detail => {
@@ -80,7 +81,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-primary-950 transition-colors duration-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
@@ -88,14 +89,14 @@ const Register = () => {
               <Activity className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="mt-6 text-responsive-2xl font-bold text-gray-900">
+          <h2 className="mt-6 text-responsive-2xl font-bold text-gray-900 dark:text-gray-100">
             Create your account
           </h2>
-          <p className="mt-2 text-responsive-sm text-gray-600">
+          <p className="mt-2 text-responsive-sm text-gray-600 dark:text-gray-400">
             Or{' '}
-            <Link 
-              to="/login" 
-              className="font-medium text-primary-600 hover:text-primary-500"
+            <Link
+              to="/login"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
             >
               sign in to your existing account
             </Link>
@@ -230,11 +231,11 @@ const Register = () => {
           </div>
 
           <div className="text-center">
-            <p className="text-responsive-sm text-gray-600">
+            <p className="text-responsive-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
-              <Link 
-                to="/login" 
-                className="font-medium text-primary-600 hover:text-primary-500"
+              <Link
+                to="/login"
+                className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
               >
                 Sign in
               </Link>

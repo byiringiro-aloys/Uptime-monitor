@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { Activity, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import TwoFactorVerify from '../components/Auth/TwoFactorVerify';
+import api from '../config/axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,11 +14,13 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [tempToken, setTempToken] = useState('');
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
@@ -31,23 +35,61 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const result = await login(formData.email, formData.password);
-      
-      if (result.success) {
-        toast.success('Welcome back!');
-        navigate(from, { replace: true });
-      } else {
-        toast.error(result.error);
+      const response = await api.post('/api/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      // Check if 2FA is required
+      if (response.data.requires2FA) {
+        setTempToken(response.data.tempToken);
+        setRequires2FA(true);
+        toast.info('2FA verification required');
+        setLoading(false);
+        return;
       }
+
+      // Normal login success
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      toast.success('Welcome back!');
+      navigate(from, { replace: true });
     } catch (error) {
-      toast.error('An unexpected error occurred');
+      toast.error(error.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
+  const handle2FAVerified = async (code, trustDevice) => {
+    try {
+      const response = await api.post('/api/auth/2fa/verify-login', {
+        tempToken,
+        code,
+        trustDevice
+      });
+
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      toast.success('Welcome back!');
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast.error(error.response?.data?.error || '2FA verification failed');
+      throw error; // Re-throw to keep modal open
+    }
+  };
+
+  const handle2FACancel = () => {
+    setRequires2FA(false);
+    setTempToken('');
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-primary-950 transition-colors duration-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
@@ -55,14 +97,14 @@ const Login = () => {
               <Activity className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="mt-6 text-responsive-2xl font-bold text-gray-900">
+          <h2 className="mt-6 text-responsive-2xl font-bold text-gray-900 dark:text-gray-100">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-responsive-sm text-gray-600">
+          <p className="mt-2 text-responsive-sm text-gray-600 dark:text-gray-400">
             Or{' '}
-            <Link 
-              to="/register" 
-              className="font-medium text-primary-600 hover:text-primary-500"
+            <Link
+              to="/register"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
             >
               create a new account
             </Link>
@@ -127,6 +169,17 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
+              >
+                Forgot password?
+              </Link>
+            </div>
+          </div>
+
           <div>
             <button
               type="submit"
@@ -142,11 +195,11 @@ const Login = () => {
           </div>
 
           <div className="text-center">
-            <p className="text-responsive-sm text-gray-600">
+            <p className="text-responsive-sm text-gray-600 dark:text-gray-400">
               Don't have an account?{' '}
-              <Link 
-                to="/register" 
-                className="font-medium text-primary-600 hover:text-primary-500"
+              <Link
+                to="/register"
+                className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
               >
                 Sign up now
               </Link>
@@ -154,6 +207,15 @@ const Login = () => {
           </div>
         </form>
       </div>
+
+      {/* 2FA Verification Modal */}
+      {requires2FA && (
+        <TwoFactorVerify
+          tempToken={tempToken}
+          onVerified={handle2FAVerified}
+          onCancel={handle2FACancel}
+        />
+      )}
     </div>
   );
 };

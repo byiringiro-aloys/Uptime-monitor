@@ -43,52 +43,46 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/api/auth/login', { email, password });
       const { token: newToken, user: userData } = response.data;
-      
+
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       setToken(newToken);
       setUser(userData);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Login failed'
       };
     }
   };
 
   const register = async (username, email, password) => {
     try {
-      const response = await api.post('/api/auth/register', { 
-        username, 
-        email, 
-        password 
+      const response = await api.post('/api/auth/register', {
+        username,
+        email,
+        password
       });
-      const { token: newToken, user: userData } = response.data;
-      
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      
-      setToken(newToken);
-      setUser(userData);
-      
-      return { success: true };
+      const { message } = response.data;
+      // Do not log in immediately. Wait for verification.
+      return { success: true, message };
     } catch (error) {
       // Extract detailed validation errors if available
       const errorData = error.response?.data;
       let errorMessage = 'Registration failed';
-      
+
       if (errorData?.details && Array.isArray(errorData.details)) {
         // Show first validation error detail
         errorMessage = errorData.details[0].msg || errorData.details[0].message || errorData.error;
       } else if (errorData?.error) {
         errorMessage = errorData.error;
       }
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: errorMessage,
         details: errorData?.details
       };

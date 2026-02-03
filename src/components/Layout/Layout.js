@@ -4,12 +4,12 @@ import Navbar from './Navbar';
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-primary-950 transition-colors duration-200">
       <Navbar />
       <main className="flex-1">
         {children}
       </main>
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
