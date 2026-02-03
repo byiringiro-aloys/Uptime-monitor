@@ -10,6 +10,7 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import monitorRoutes from './routes/monitors.js';
 import monitoringService from './services/monitoringService.js';
+import cronService from './services/cronService.js';
 import logger from './utils/logger.js';
 import validateEnv from './utils/validateEnv.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
@@ -31,7 +32,7 @@ app.use(helmet({
 
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? (process.env.ALLOWED_ORIGINS || 'https://blinktech-uptime-monitor.onrender.com').split(',')
+  ? (process.env.ALLOWED_ORIGINS || 'https://blinktech-uptime-monitor.vercel.app').split(',')
   : ['http://localhost:3000', 'http://localhost:3001'];
 
 app.use(cors({
@@ -64,8 +65,8 @@ app.use('/api/', apiLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
@@ -83,13 +84,13 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((error, req, res, next) => {
   logger.error('Unhandled error:', error);
-  
+
   // Handle CORS errors
   if (error.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'CORS policy violation' });
   }
-  
-  res.status(500).json({ 
+
+  res.status(500).json({
     error: 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { details: error.message })
   });
@@ -103,14 +104,17 @@ const startServer = async () => {
     // Connect to database
     await connectDB();
     logger.info('Database connected successfully');
-    
+
     // Start monitoring service
     await monitoringService.start();
     logger.info('Monitoring service started');
-    
+
+    // Start cron service
+    cronService.start();
+
     // Create HTTP server
     httpServer = createServer(app);
-    
+
     // Initialize Socket.io with CORS
     const io = new Server(httpServer, {
       cors: {
@@ -119,29 +123,29 @@ const startServer = async () => {
         credentials: true
       }
     });
-    
+
     // Make io accessible to routes
     app.set('io', io);
-    
+
     // Socket.io connection handling
     io.on('connection', (socket) => {
       logger.info(`✅ Client connected: ${socket.id}`);
-      
+
       socket.on('disconnect', () => {
         logger.info(`❌ Client disconnected: ${socket.id}`);
       });
     });
-    
+
     // Pass io to monitoring service for real-time updates
     monitoringService.setSocketIO(io);
-    
+
     // Start HTTP server
     httpServer.listen(PORT, () => {
       logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
       logger.info(`📊 Health check: http://localhost:${PORT}/health`);
       logger.info(`🔌 Socket.io enabled for real-time updates`);
     });
-    
+
     // Handle server errors
     httpServer.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
@@ -151,7 +155,7 @@ const startServer = async () => {
       }
       process.exit(1);
     });
-    
+
   } catch (error) {
     logger.error('❌ Failed to start server:', error);
     process.exit(1);

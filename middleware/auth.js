@@ -12,7 +12,7 @@ export const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password');
-    
+
     if (!user || !user.isActive) {
       return res.status(401).json({ error: 'Invalid or inactive user' });
     }
@@ -30,6 +30,7 @@ export const authenticateToken = async (req, res, next) => {
   }
 };
 
-export const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+export const generateToken = (userId, expiresIn = '7d') => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn });
 };
+

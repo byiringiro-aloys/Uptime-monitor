@@ -3,6 +3,7 @@ import cron from 'node-cron';
 import Monitor from '../models/Monitor.js';
 import PingLog from '../models/PingLog.js';
 import logger from '../utils/logger.js';
+import { sendMonitorAlert } from './emailService.js';
 
 class MonitoringService {
   constructor() {
@@ -18,7 +19,7 @@ class MonitoringService {
 
   async start() {
     if (this.isRunning) return;
-    
+
     logger.info('🚀 Starting monitoring service...');
     this.isRunning = true;
 
@@ -39,8 +40,8 @@ class MonitoringService {
 
   async checkAllMonitors() {
     try {
-      const monitors = await Monitor.find({ isActive: true });
-      
+      const monitors = await Monitor.find({ isActive: true }).populate('userId');
+
       for (const monitor of monitors) {
         // Check if it's time to ping this monitor
         const now = Date.now();
@@ -80,7 +81,7 @@ class MonitoringService {
       });
 
       clearTimeout(timeoutId);
-      
+
       const responseTime = Date.now() - startTime;
       const isSuccess = response.ok; // 2xx status codes
 
@@ -108,7 +109,7 @@ class MonitoringService {
       if (process.env.NODE_ENV === 'development') {
         logger.debug(`${isSuccess ? '✅' : '❌'} ${monitor.name}: ${response.status} (${responseTime}ms)`);
       }
-      
+
       // Log only failures in production
       if (!isSuccess && process.env.NODE_ENV === 'production') {
         logger.warn(`Monitor ${monitor.name} is down: ${response.status} (${responseTime}ms)`);
@@ -126,9 +127,16 @@ class MonitoringService {
         });
       }
 
+      // Send email alert if status changed (DOWN -> UP)
+      if (monitor.status === 'down' && isSuccess) {
+        if (monitor.userId && monitor.userId.email) {
+          sendMonitorAlert(monitor.userId.email, monitor.name, 'up', null, null);
+        }
+      }
+
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       pingLog = {
         ...pingLog,
         status: 'failure',
@@ -145,14 +153,15 @@ class MonitoringService {
         successfulChecks: monitor.successfulChecks
       };
 
-      updateData.uptime = monitor.totalChecks > 0 
-        ? (updateData.successfulChecks / updateData.totalChecks) * 100 
+      updateData.uptime = monitor.totalChecks > 0
+        ? (updateData.successfulChecks / updateData.totalChecks) * 100
         : 0;
 
       const updatedMonitor = await Monitor.findByIdAndUpdate(monitor._id, updateData, { new: true });
 
       logger.warn(`❌ Monitor ${monitor.name} failed: ${error.message}`);
 
+      // Emit real-time update to connected clients
       // Emit real-time update to connected clients
       if (this.io) {
         this.io.emit('monitorUpdate', {
@@ -164,6 +173,13 @@ class MonitoringService {
           error: error.message,
           timestamp: new Date().toISOString()
         });
+      }
+
+      // Send email alert if status changed (UP -> DOWN)
+      if (monitor.status === 'up') {
+        if (monitor.userId && monitor.userId.email) {
+          sendMonitorAlert(monitor.userId.email, monitor.name, 'down', error.message, null);
+        }
       }
     }
 
@@ -178,7 +194,7 @@ class MonitoringService {
   async getMonitorSummary(monitorId, hours = 24) {
     try {
       const timeRange = new Date(Date.now() - hours * 60 * 60 * 1000);
-      
+
       const logs = await PingLog.find({
         monitorId,
         timestamp: { $gte: timeRange }
