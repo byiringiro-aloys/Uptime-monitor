@@ -26,6 +26,10 @@ export const ThemeProvider = ({ children }) => {
         return 'light';
     });
 
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    };
+
     useEffect(() => {
         const root = window.document.documentElement;
         root.classList.remove('light', 'dark');
@@ -33,9 +37,46 @@ export const ThemeProvider = ({ children }) => {
         localStorage.setItem('theme', theme);
     }, [theme]);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    };
+    // Keyboard shortcut for theme toggle
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            // Check for Ctrl+Shift+D (Windows/Linux) or Cmd+Shift+D (Mac)
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D') {
+                event.preventDefault();
+                toggleTheme();
+                
+                // Show a brief notification
+                const notification = document.createElement('div');
+                notification.textContent = `Switched to ${theme === 'dark' ? 'light' : 'dark'} mode`;
+                notification.className = `
+                    fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium
+                    ${theme === 'dark' 
+                        ? 'bg-white text-gray-900' 
+                        : 'bg-gray-900 text-white'
+                    }
+                    transition-all duration-300 transform translate-x-0
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove notification after 2 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (document.body.contains(notification)) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, 2000);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [theme, toggleTheme]);
 
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>

@@ -21,13 +21,17 @@ export const AuthProvider = ({ children }) => {
   // Check if user is authenticated on app load
   useEffect(() => {
     const checkAuth = async () => {
-      if (token) {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken && storedUser) {
         try {
           // Verify token by making a request to a protected endpoint
           const response = await api.get('/api/monitors');
           // If successful, token is valid
-          const userData = JSON.parse(localStorage.getItem('user'));
+          const userData = JSON.parse(storedUser);
           setUser(userData);
+          setToken(storedToken);
         } catch (error) {
           // Token is invalid, clear it
           logout();
@@ -37,6 +41,32 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
+  }, []);
+
+  // Listen for storage changes (when login happens in same tab)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken && storedUser && storedToken !== token) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } else if (!storedToken && token) {
+        setToken(null);
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check for changes on focus (for same-tab updates)
+    window.addEventListener('focus', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleStorageChange);
+    };
   }, [token]);
 
   const login = async (email, password) => {

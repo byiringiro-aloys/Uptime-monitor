@@ -9,7 +9,8 @@ import {
   X,
   Activity,
   Sun,
-  Moon
+  Moon,
+  Monitor
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -35,7 +36,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white dark:bg-primary-900 shadow-sm border-b border-gray-200 dark:border-primary-800 sticky top-0 z-50 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -43,7 +44,7 @@ const Navbar = () => {
             to="/"
             className="flex items-center space-x-2 text-gray-900 hover:text-gray-600 transition-colors dark:text-white dark:hover:text-gray-300"
           >
-            <div className="p-1.5 bg-black rounded-lg dark:bg-white text-white dark:text-black">
+            <div className="p-1.5 bg-primary-600 dark:bg-primary-500 rounded-lg text-white">
               <Activity className="h-6 w-6" />
             </div>
             <span className="text-responsive-lg font-bold">UptimeBot</span>
@@ -65,8 +66,9 @@ const Navbar = () => {
                   {/* Theme Toggle */}
                   <button
                     onClick={toggleTheme}
-                    className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
-                    aria-label="Toggle theme"
+                    className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
+                    aria-label="Toggle theme (Ctrl+Shift+D)"
+                    title="Toggle theme (Ctrl+Shift+D)"
                   >
                     {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                   </button>
@@ -90,8 +92,9 @@ const Navbar = () => {
                 {/* Theme Toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
-                  aria-label="Toggle theme"
+                  className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
+                  aria-label="Toggle theme (Ctrl+Shift+D)"
+                  title="Toggle theme (Ctrl+Shift+D)"
                 >
                   {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>
@@ -116,13 +119,15 @@ const Navbar = () => {
           <div className="md:hidden flex items-center space-x-4">
             <button
               onClick={toggleTheme}
-              className="p-2 text-gray-500 hover:text-black transition-colors dark:text-gray-400 dark:hover:text-white"
+              className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-primary-800"
+              aria-label="Toggle theme (Ctrl+Shift+D)"
+              title="Toggle theme (Ctrl+Shift+D)"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-700 hover:text-black transition-colors dark:text-gray-300 dark:hover:text-white"
+              className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -135,26 +140,26 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 bg-white dark:bg-primary-900 dark:border-primary-800">
+          <div className="md:hidden py-4 border-t border-gray-200 dark:border-primary-800 bg-white dark:bg-primary-900 transition-colors duration-200">
             {isAuthenticated ? (
               <div className="space-y-4">
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors"
+                  className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Monitor className="h-4 w-4" />
                   <span>Dashboard</span>
                 </Link>
 
-                <div className="flex items-center space-x-2 text-gray-700 py-2">
+                <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 py-2">
                   <User className="h-4 w-4" />
                   <span className="text-responsive-sm">{user?.username}</span>
                 </div>
 
                 <button
                   onClick={handleLogoutClick}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-danger-600 transition-colors w-full text-left"
+                  className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-danger-600 dark:hover:text-danger-400 transition-colors w-full text-left"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>
@@ -164,7 +169,7 @@ const Navbar = () => {
               <div className="space-y-4">
                 <Link
                   to="/login"
-                  className="block text-gray-700 hover:text-primary-600 transition-colors"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Login

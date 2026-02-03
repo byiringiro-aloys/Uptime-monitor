@@ -55,7 +55,11 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(user));
 
       toast.success('Welcome back!');
-      navigate(from, { replace: true });
+      
+      // Small delay to allow AuthContext to update
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     } catch (error) {
       toast.error(error.response?.data?.error || 'Login failed');
     } finally {
@@ -76,7 +80,11 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(user));
 
       toast.success('Welcome back!');
-      navigate(from, { replace: true });
+      
+      // Small delay to allow AuthContext to update
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     } catch (error) {
       toast.error(error.response?.data?.error || '2FA verification failed');
       throw error; // Re-throw to keep modal open

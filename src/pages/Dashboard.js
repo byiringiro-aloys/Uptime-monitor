@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../config/axios';
-import { Plus, Monitor, TrendingUp, AlertCircle, Wifi } from 'lucide-react';
+import { Plus, Monitor as MonitorIcon, TrendingUp, AlertCircle, Wifi } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSocket } from '../contexts/SocketContext';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -167,7 +167,7 @@ const Dashboard = () => {
           <div className="card p-4 sm:p-6">
             <div className="flex items-center">
               <div className="p-2 bg-primary-100 rounded-lg">
-                <Monitor className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
+                <MonitorIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
               </div>
               <div className="ml-4">
                 <p className="text-responsive-sm text-gray-600 dark:text-gray-400">Total Monitors</p>
@@ -237,7 +237,7 @@ const Dashboard = () => {
         {/* Monitors Grid */}
         {monitors.length === 0 ? (
           <div className="card p-8 sm:p-12 text-center">
-            <Monitor className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <MonitorIcon className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
             <h3 className="text-responsive-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               No monitors yet
             </h3>
