@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 transition-colors duration-200;
+    @apply dark:bg-primary-950 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  /* Modern Black Button with Gradient & Glow */
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white 
+    border border-primary-700/50
+    shadow-[0_0_15px_rgba(0,0,0,0.2)] 
+    hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]
+    hover:from-black hover:to-primary-900
+    dark:from-primary-100 dark:via-primary-200 dark:to-primary-100 dark:text-primary-950
+    dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]
+    dark:border-transparent;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 focus:ring-gray-200
+    dark:bg-primary-900 dark:text-gray-100 dark:border-primary-800 dark:hover:bg-primary-800 dark:focus:ring-primary-700;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500
+    dark:bg-danger-700 dark:hover:bg-danger-600;
+  }
+  
+  .btn-success {
+    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500
+    dark:bg-success-700 dark:hover:bg-success-600;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200
+    dark:bg-primary-900 dark:border-primary-800 dark:text-white dark:focus:ring-primary-400 dark:placeholder-gray-500;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 transition-colors duration-200
+    dark:bg-primary-900 dark:border-primary-800;
+  }
+  
+  /* Status Badges */
+  .status-up {
+    @apply bg-success-50 text-success-700 border border-success-200
+    dark:bg-success-900/30 dark:text-success-400 dark:border-success-800;
+  }
+  
+  .status-down {
+    @apply bg-danger-50 text-danger-700 border border-danger-200
+    dark:bg-danger-900/30 dark:text-danger-400 dark:border-danger-800;
+  }
+  
+  .status-unknown {
+    @apply bg-gray-50 text-gray-700 border border-gray-200
+    dark:bg-primary-800/50 dark:text-gray-400 dark:border-primary-700;
+  }
+
+  /* Responsive text utilities */
+  .text-responsive-xs { @apply text-xs sm:text-sm; }
+  .text-responsive-sm { @apply text-sm sm:text-base; }
+  .text-responsive-base { @apply text-base sm:text-lg; }
+  .text-responsive-lg { @apply text-lg sm:text-xl; }
+  .text-responsive-xl { @apply text-xl sm:text-2xl; }
+  .text-responsive-2xl { @apply text-2xl sm:text-3xl; }
+  .text-responsive-3xl { @apply text-3xl sm:text-4xl; }
+}
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s infinite;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Glassmorphism for dark mode */
+  .glass-dark {
+    @apply backdrop-blur-md bg-primary-900/70 border border-primary-800;
+  }
+}
