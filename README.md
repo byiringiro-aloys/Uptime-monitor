@@ -1,52 +1,64 @@
 # 📊 Uptime Monitor
 
-A robust, real-time website uptime monitoring solution built with the MERN stack (MongoDB, Express, React, Node.js). This application allows users to track the status of their websites, receive instant notifications upon downtime, and view detailed historically uptime analytics.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D16.0.0-green.svg)
+![React](https://img.shields.io/badge/react-18.0.0-blue.svg)
+![MongoDB](https://img.shields.io/badge/mongodb-7.0.0-green.svg)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+
+> A robust, real-time website uptime monitoring solution built with the MERN stack. Track status, get instant alerts, and analyze uptime history.
+
+---
+
+## 📖 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Security](#-security)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Support](#-support)
+
+---
 
 ## ✨ Features
 
-- **Real-time Monitoring**: Tracks website status changes instantly using Socket.io.
-- **Detailed Analytics**: View response times, uptime percentages, and incident history.
-- **User Authentication**: Secure signup and login with JWT and bcrypt.
-- **Two-Factor Authentication (2FA)**: Enhanced security using Time-based One-Time Passwords (TOTP).
-- **Email Notifications**: Get alerted immediately via email when a monitor goes down (powered by Resend).
-- **Rate Limiting**: Protects the API from abuse.
-- **Responsive Design**: Modern UI built with Tailwind CSS, fully responsive across devices.
+- **⚡ Real-time Monitoring**: Tracks website status changes instantly using Socket.io.
+- **📈 Detailed Analytics**: View response times, uptime percentages, and incident history.
+- **🛡️ Secure Authentication**: JWT & bcrypt for secure signup/login, plus **2FA (TOTP)** for extra security.
+- **📧 Instant Notifications**: Get alerted immediately via email (powered by Resend) when a monitor goes down.
+- **🚥 Rate Limiting**: Intelligent API protection against abuse.
+- **📱 Responsive Design**: Modern, mobile-first UI built with Tailwind CSS.
 
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Node.js**: Runtime environment.
-- **Express**: Web framework.
-- **MongoDB**: NoSQL database for storing user data and monitor logs.
-- **Mongoose**: ODM for MongoDB.
-- **Socket.io**: Real-time bidirectional event-based communication.
-- **Node Cron**: Cron jobs for scheduled monitoring tasks.
-- **Resend**: Email API for notifications.
-- **Passport/JWT**: Authentication strategies.
+- **Core**: Node.js, Express.js
+- **Database**: MongoDB, Mongoose
+- **Real-time**: Socket.io
+- **Utilities**: Node Cron, Resend (Email), Passport/JWT
 
 ### Frontend
-- **React**: UI library.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
-- **React Router**: Routing management.
-- **Recharts**: Charting library for analytics visualization.
-- **Socket.io Client**: Real-time client-side communication.
-- **Lucide React**: Icon set.
+- **Framework**: React.js
+- **Styling**: Tailwind CSS, Lucide React (Icons)
+- **State/Routing**: React Router, Context API
+- **Charts**: Recharts
 
 ## 🚀 Getting Started
-
-Follow these instructions to get the project up and running on your local machine.
 
 ### Prerequisites
 
 - **Node.js** (v16 or higher)
-- **MongoDB** (local user or Atlas connection string)
+- **MongoDB** (local or Atlas)
 - **npm** or **yarn**
 
 ### Installation
 
 1.  **Clone the repository**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/yourusername/Uptime-monitor.git
     cd Uptime-monitor
     ```
 
@@ -64,75 +76,79 @@ Follow these instructions to get the project up and running on your local machin
 
 ### Configuration
 
-#### Backend Setup
-1.  Navigate to the `backend` directory.
-2.  Create a `.env` file based on the example:
-    ```bash
-    cp .env.example .env
-    ```
-3.  Update the variables in `.env`:
-    - `MONGODB_URI`: Your MongoDB connection string.
-    - `JWT_SECRET`: A secure random string for signing tokens.
-    - `RESEND_API_KEY`: Your API key from Resend (for emails).
-    - `FRONTEND_URL`: URL of your frontend (e.g., `http://localhost:3000`).
+#### Backend (.env)
+Create `backend/.env` from `.env.example`:
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/uptime-monitor
+JWT_SECRET=your_secure_jwt_secret
+RESEND_API_KEY=your_resend_api_key
+FRONTEND_URL=http://localhost:3000
+```
 
-#### Frontend Setup
-1.  Navigate to the `frontend` directory.
-2.  Create a `.env` file based on the example:
-    ```bash
-    cp .env.example .env
-    ```
-3.  Update the variables in `.env`:
-    - `REACT_APP_API_URL`: URL of your backend API (e.g., `http://localhost:5000`).
+#### Frontend (.env)
+Create `frontend/.env` from `.env.example`:
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
 
-### Running the Application
+### Running Locally
 
-1.  **Start the Backend Server**
+1.  **Start Backend**
     ```bash
     cd backend
     npm run dev
     ```
-    The server will start on port 5000 (or your configured PORT).
 
-2.  **Start the Frontend Development Server**
+2.  **Start Frontend**
     ```bash
     cd frontend
     npm start
     ```
-    The application will launch in your browser at `http://localhost:3000`.
+    Visit `http://localhost:3000` to view the app.
 
 ## 📂 Project Structure
 
 ```
 Uptime-monitor/
-├── backend/            # Express server and API
-│   ├── config/         # Database and app configuration
-│   ├── middleware/     # Auth, rate limiting, and error handling
-│   ├── models/         # Mongoose schemas
-│   ├── routes/         # API routes
-│   ├── services/       # Business logic (monitoring, email, cron)
-│   └── server.js       # Entry point
+├── backend/            # API & Server Logic
+│   ├── config/         # DB & App Config
+│   ├── middleware/     # Security & Validation
+│   ├── models/         # DB Schemas
+│   ├── routes/         # API Endpoint Definitions
+│   ├── services/       # Core Business Logic
+│   └── server.js       # Entry Point
 │
-└── frontend/           # React application
-    ├── public/         # Static assets
-    └── src/
-        ├── components/ # Reusable UI components
-        ├── pages/      # Route pages
-        └── context/    # React context (Auth, etc.)
+└── frontend/           # React UI
+    ├── src/
+        ├── components/ # Reusable UI Elements
+        ├── pages/      # Application Views
+        └── context/    # Global State Management
 ```
 
 ## 🔐 Security
 
 - **Helmet**: Secures HTTP headers.
-- **CORS**: Configured to allow trusted origins.
-- **Input Sanitization**: Prevents NoSQL injection.
-- **Bcrypt**: Hashes passwords.
-- **Rate Limiting**: Prevents brute-force attacks.
+- **CORS**: Configured to restrict access to trusted origins.
+- **Input Sanitization**: Defends against NoSQL injection.
+- **Bcrypt**: Industry-standard password hashing.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## ⭐️ Show your support
+
+Give a ⭐️ if this project helped you!
